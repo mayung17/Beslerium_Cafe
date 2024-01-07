@@ -1,0 +1,29 @@
+﻿@using POS_CW.Data.Models;
+@inherits LayoutComponentBase
+@inject NavigationManager NavManager
+@inject GlobalState GlobalState
+
+<div class="page">
+
+    @if (GlobalState.CurrentUser != null)
+    {
+        <div class="sidebar">
+            <NavMenu />
+        </div>
+    }
+
+    <main>
+        <article class="content px-4">
+                @Body
+        </article>
+    </main>
+</div>
+
+@code {
+
+    private void LogoutHandler()
+    {
+        GlobalState.CurrentUser = null;
+        NavManager.NavigateTo("/login");
+    }
+}
