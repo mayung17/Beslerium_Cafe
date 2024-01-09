@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using POS_CW.Data.models;
+using POS_CW.Data.Models;
 using POS_CW.Data.Utils;
 using System;
 using System.Collections.Generic;
@@ -9,32 +10,32 @@ using System.Threading.Tasks;
 
 namespace POS_CW.Data.Services
 {
-    public class Order_Services
+    public class PaymentService
     {
-        public static void SaveOrderToJson(Order Orders)
+        public static void SavePaymentToJson(Payments payments)
         {
-            string filePath = Utility.OrderFilePath();
+            string filePath = Utility.PaymentFilePath();
             try
             {
                 // Use a lock to ensure exclusive access to the file during write operations
                 lock (FileLock)
                 {
-                    List<Order> orderList;
+                    List<Payments> paymentLists;
 
                     string existingJsonData = File.ReadAllText(filePath);
 
                     if (string.IsNullOrEmpty(existingJsonData))
                     {
-                        orderList = new List<Order>();
+                        paymentLists = new List<Payments>();
                     }
                     else
                     {
-                        orderList = JsonConvert.DeserializeObject<List<Order>>(existingJsonData);
+                        paymentLists = JsonConvert.DeserializeObject<List<Payments>>(existingJsonData);
                     }
 
-                    orderList.Add(Orders);
+                    paymentLists.Add(payments);
 
-                    string jsonData = JsonConvert.SerializeObject(orderList, Formatting.Indented);
+                    string jsonData = JsonConvert.SerializeObject(paymentLists, Formatting.Indented);
 
                     File.WriteAllText(filePath, jsonData);
                 }
@@ -45,19 +46,30 @@ namespace POS_CW.Data.Services
                 App.Current.MainPage.DisplayAlert("Error", $"Error saving data: {ex.Message}", "OK");
             }
         }
-
         // Define a static object for the lock
         private static readonly object FileLock = new object();
+        public static Payments CreatePayment(Order orders, string Usernames, string Phonenumber int Discount)
+        {
 
+            // Retrieve the list of hobbies.
+            Payments payment = new Payments
+            {
+                Id = Guid.NewGuid(), // Generate a new unique identifier for the payment
+                order = orders,   // Assign the provided orderId
+                Username = Usernames,
+                PhoneNumber = Phonenumber,
+                Discount = Discount
 
-        //This method Injects the data Into the Json File Manually by creating the multiple objects and Passing it to the list only if the data inside the file is empty.
-
-        // Retrieves Add_In data from the JSON file.
-        public static List<Order> RetrieveOrderedData()
+                // Other properties or logic related to payment creation
+            };
+            SavePaymentToJson(payment);
+            return payment;  
+        }
+        public static List<Payments> RetrievePaymentData()
         {
             // Gets the file path where form data is stored from ApplicationFilePath method
             // in FormUtils class in Utils Folder and stores it in the variable filePath.
-            string filePath = Utility.OrderFilePath();
+            string filePath = Utility.PaymentFilePath();
             try
             {
                 string existingJsonData = File.ReadAllText(filePath); //ReadAllText reads the datas inside the file from filePath Variable and Stores in variable called existingJsonData
@@ -66,25 +78,17 @@ namespace POS_CW.Data.Services
                 // otherwise, deserialize the data into a list of AddForm objects.
                 if (string.IsNullOrEmpty(existingJsonData))
                 {
-                    return new List<Order>();
+                    return new List<Payments>();
                 }
-                return JsonConvert.DeserializeObject<List<Order>>(existingJsonData);
+                return JsonConvert.DeserializeObject<List<Payments>>(existingJsonData);
             }
             catch (Exception ex)
             {
                 // Handle exceptions by displaying an alert with the error message.
                 Console.WriteLine($"Error reading JSON file: {ex.Message}");
                 App.Current.MainPage.DisplayAlert("Error", "Error Retrieving Data from Json", "OK");
-                return new List<Order>();
+                return new List<Payments>();
             }
         }
-        public static Order GetOrderById(Guid id)
-        {
-            List<Order> order = RetrieveOrderedData(); // Retrieves the list of hobbies and stores it in hobbies object
-
-            // Return the first Add_In with the specified Id.
-            return order.FirstOrDefault(x => x.Id == id); //creating arrow function and checking whether the Id of Hobbies is equal to the id of parameter that recieves value later on.
-        }
-
     }
 }

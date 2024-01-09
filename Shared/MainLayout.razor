@@ -8,7 +8,7 @@
     @if (GlobalState.CurrentUser != null)
     {
         <div class="sidebar">
-            <NavMenu />
+            <NavMenu Username="@GlobalState.CurrentUser.Email" LogoutHandler="LogoutHandler" />
         </div>
     }
 
