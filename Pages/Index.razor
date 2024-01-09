@@ -11,8 +11,15 @@
             NavManager.NavigateTo("/login");
         }
         else
-        {
-            NavManager.NavigateTo("addin");
+        {  
+            if (GlobalState.CurrentUser.Role == Role.Admin)
+            {
+                // Navigate to the EditAddIn page with the specific add-in ID
+                NavManager.NavigateTo("/addin");
+            }
+            else{
+            NavManager.NavigateTo("/coffee");
+            }
         }
     }
 }

@@ -1,0 +1,93 @@
+﻿@page "/order"
+@using POS_CW.Data.Services;
+@using POS_CW.Data.Utils;
+@using POS_CW.Data.models;
+@using POS_CW.Data.services;
+@inject NavigationManager NavMag;
+
+
+    <!-- EditForm component of Blazor for handling form submission and validation -->
+    <EditForm Model="@coffeeOrders" OnValidSubmit="@HandleSubmit">
+    <div class="form-group">
+        <label for="Coffee">Coffee:</label>
+        <!-- Select component for displaying and selecting multiple hobbies -->
+        <select id="Coffee" class="form-control" >
+            <!-- Iterate through the list of hobbies and create an option for each -->
+            @foreach (var coffee in coffes)
+            {
+                <option value="@coffee.Id">@coffee.Coffee_Name</option>
+            }
+        </select>
+    </div>
+        <div class="form-group">
+        <label for="AddIns">Addin:</label>
+            <!-- Select component for displaying and selecting multiple hobbies -->
+        <select id="AddIns" class="form-control" multiple>
+            <!-- Iterate through the list of add-ins and create an option for each -->
+            @foreach (var addin in addins)
+            {
+                <option value="@addin.Id">@addin.AddIn_Name</option>
+            }
+        </select>
+        </div>
+        <br />
+        <!-- Submit button for form submission -->
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </EditForm>
+
+@code {
+    private List<Add_In> addins = new List<Add_In>();
+    private List<Coffee> coffes = new List<Coffee>();
+    private Order coffeeOrders = new();
+
+    protected override void OnInitialized()
+    {
+        // Retrieve the list of available hobbies
+        addins = Add_InServices.RetrieveAddInData();
+        coffes = Coffees_Services.RetrieveCoffeeData();
+        base.OnInitialized();
+    }
+    public async void HandleSubmit()
+    {
+        // Use JavaScript interop to get the selected add-ins and coffee
+        var selectedAddins = await JSRuntime.InvokeAsync<List<String>>("multiselect.getSelectedValues", "AddIns");
+        var selectedCoffeeId = await JSRuntime.InvokeAsync<String>("singleValue.getSelectedValues", "Coffee");
+        coffeeOrders.Addin = selectedAddins.Select(id =>
+        new Add_In
+         {
+             Id = Guid.Parse(id),
+             AddIn_Name = addins.FirstOrDefault(h => h.Id == Guid.Parse(id))?.AddIn_Name,
+             AddIn_Price = addins.FirstOrDefault(h => h.Id == Guid.Parse(id)).AddIn_Price
+         }).ToList();
+  
+    coffeeOrders.Coffee = new Coffee
+    {
+        Id = Guid.Parse(selectedCoffeeId),
+        Coffee_Name = coffes.FirstOrDefault(coffee => coffee.Id == Guid.Parse(selectedCoffeeId))?.Coffee_Name,
+        Coffee_Price = coffes.FirstOrDefault(coffee => coffee.Id == Guid.Parse(selectedCoffeeId)).Coffee_Price 
+    };
+
+     
+
+
+        // Calculate the total price by summing up the prices of coffee and add-ins
+        float totalPrice = (coffeeOrders.Coffee?.Coffee_Price ?? 0.0f) + coffeeOrders.Addin.Sum(addin => addin.AddIn_Price);
+
+
+
+
+        coffeeOrders.TotalPrice = totalPrice;
+
+        Order_Services.SaveOrderToJson(coffeeOrders);
+
+        // Reset the form object
+        coffeeOrders = new();
+
+        // Navigate to the FormData page
+        NavMag.NavigateTo("");
+
+        // Display a success alert
+        await App.Current.MainPage.DisplayAlert("Order Created", "Order Added To Json", "OK");
+    }
+
+}

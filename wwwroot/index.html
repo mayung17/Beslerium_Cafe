@@ -23,7 +23,35 @@
     </div>
 
     <script src="_framework/blazor.webview.js" autostart="false"></script>
+    <script>
+        window.multiselect = {
+            // getSelectedValues method takes an 'id' parameter representing the id of the multi-select dropdown.
+            getSelectedValues: (id) => {
+                // Retrieve the select element using the provided 'id'.
+                var select = document.getElementById(id);
+                // Use Array.from to convert the HTMLCollection of options to an array.
+                // Filter the array to include only selected options.
+                var selectedOptions = Array.from(select.options)
+                    .filter(option => option.selected)
+                    // Map the array to extract the values of selected options.
+                    .map(option => option.value);
+                // Return an array of selected option values.
+                return selectedOptions;
+            }
+        };
 
+        window.singleValue = {
+            // getSelectedValue method takes an 'id' parameter representing the id of the dropdown.
+            getSelectedValues: (id) => {
+                // Retrieve the select element using the provided 'id'.
+                var select = document.getElementById(id);
+                // Return the value of the selected option.
+                return select.value;
+            }
+        };
+
+
+    </script>
 </body>
 
 </html>

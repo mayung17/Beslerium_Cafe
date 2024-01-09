@@ -1,0 +1,83 @@
+﻿<!-- Razor page for creating a new payment based on an order -->
+@page "/payment/{Id:guid}"
+@using POS_CW.Data.Models;
+@using POS_CW.Data.Services;
+@using POS_CW.Data.models;
+<!-- Inject the NavigationManager Service for page navigation -->
+@inject NavigationManager NavManager
+
+<h3>Create Payment</h3>
+
+<!-- EditForm component of Blazor for handling form submission and validation -->
+<EditForm Model="@payment" OnValidSubmit="@HandleSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="form-group">
+        <label for="Username">Username:</label>\
+        <InputText id="Username" class="form-control" @bind-Value="payment.Username" />
+     </div>
+     <div class="form-group">
+        <label for="PhoneNumber">PhoneNumber:</label>\
+        <InputText id="PhoneNumber" class="form-control" @bind-Value="payment.PhoneNumber" />
+     </div>
+    <!-- Submit button for saving changes -->
+    <button type="submit"  class="btn btn-primary">Save</button>
+</EditForm>
+
+@code {
+    [Parameter] // Parameter to capture the order Id from the route above /payment/{Id:guid}
+    public Guid Id { get; set; }
+
+    public Payments payment;
+    public Order order;
+
+    private CustomerServices customerServices = new CustomerServices();
+
+    // Initialization method runs when the component i.e. CreatePayment.razor is initialized
+    protected override void OnInitialized()
+    {
+        // Retrieve the order information based on the specified Id
+        order = Order_Services.GetOrderById(Id);
+
+
+        // Initialize a new Payment object
+        payment = new Payments();
+
+        base.OnInitialized();
+    }
+
+    // HandleSubmit method is called on form submission
+    public void HandleSubmit()
+    {
+        Customer user=customerServices.IsApplicableForSchemes(payment.Username, payment.PhoneNumber);
+        try
+        {
+
+            if( user == null)
+            {
+                // Call PaymentServices to create a new payment based on the order
+                payment = PaymentService.CreatePayment(order, payment.Username, payment.PhoneNumber, payment.Discount = 0);
+
+                // Display a success alert and navigate back to the Payments page
+                App.Current.MainPage.DisplayAlert("Success", "Payment Successfully Created", "Ok");
+                NavManager.NavigateTo("/view_payment"); }
+            else
+            {
+                if (user.Membertype == MemberType.Member)
+                {
+                    payment = PaymentService.CreatePayment(order, payment.Username, payment.PhoneNumber, payment.Discount=10);
+                }
+
+                else
+                {
+                    payment = PaymentService.CreatePayment(order, payment.Username, payment.PhoneNumber, payment.Discount=0);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            // Display an error alert if an exception occurs during payment creation
+            App.Current.MainPage.DisplayAlert("Error", $"Error Creating Payment: {ex.Message}", "Ok");
+        }
+    }
+}
