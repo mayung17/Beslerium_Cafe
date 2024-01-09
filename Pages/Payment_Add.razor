@@ -49,30 +49,16 @@
     // HandleSubmit method is called on form submission
     public void HandleSubmit()
     {
-        Customer user=customerServices.IsApplicableForSchemes(payment.Username, payment.PhoneNumber);
+        Customer user = customerServices.IsApplicableForSchemes(payment.Username, payment.PhoneNumber);
         try
         {
+            customerServices.RenewMembership(user.Username, user.PhoneNumber);
+            customerServices.ApplyFlatDiscount(user.Username,user.PhoneNumber);
+            payment = PaymentService.CreatePayment(order, payment.Username, payment.PhoneNumber,payment.Discount=user.Discount );
+            customerServices.IncrementPurchaseCount(user.Username, user.PhoneNumber);
+            customerServices.IncrementRedemptionCount(user.Username, user.PhoneNumber);
 
-            if( user == null)
-            {
-                // Call PaymentServices to create a new payment based on the order
-                payment = PaymentService.CreatePayment(order, payment.Username, payment.PhoneNumber, payment.Discount = 0);
-
-                // Display a success alert and navigate back to the Payments page
-                App.Current.MainPage.DisplayAlert("Success", "Payment Successfully Created", "Ok");
-                NavManager.NavigateTo("/view_payment"); }
-            else
-            {
-                if (user.Membertype == MemberType.Member)
-                {
-                    payment = PaymentService.CreatePayment(order, payment.Username, payment.PhoneNumber, payment.Discount=10);
-                }
-
-                else
-                {
-                    payment = PaymentService.CreatePayment(order, payment.Username, payment.PhoneNumber, payment.Discount=0);
-                }
-            }
+            App.Current.MainPage.DisplayAlert("Success", "Data SuccessFully Edited", "Ok");
         }
         catch (Exception ex)
         {

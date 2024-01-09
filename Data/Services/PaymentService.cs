@@ -48,7 +48,7 @@ namespace POS_CW.Data.Services
         }
         // Define a static object for the lock
         private static readonly object FileLock = new object();
-        public static Payments CreatePayment(Order orders, string Usernames, string Phonenumber int Discount)
+        public static Payments CreatePayment(Order orders, string Usernames, string Phonenumber, double Discount)
         {
 
             // Retrieve the list of hobbies.

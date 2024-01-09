@@ -18,6 +18,9 @@
             <th>Username</th>
             <th>Phone Number</th>
             <th>Total Amount</th>
+            <th>Discount</th>
+            <th>Total After Discount</th>
+           
         </tr>
     </thead>
     <tbody>
@@ -34,8 +37,15 @@
                 </td>
                 <td>@payData.PhoneNumber</td>
                 <td>@payData.order.TotalPrice</td>
+                <td>@string.Format("{0:P2}", payData.Discount)</td>
+                <td>@(payData.order.TotalPrice-(payData.order.TotalPrice * payData.Discount) )</td>
+
             </tr>
         }
+        <tr>
+          
+            
+        </tr>
     </tbody>
 </table>
 @code {
@@ -123,7 +133,7 @@
 
     public static void DeleteFile()
     {
-        String filePath = Utility.OrderFilePath();
+        String filePath = Utility.PaymentFilePath();
         try
         {
             // Check if the file exists before attempting to delete it
