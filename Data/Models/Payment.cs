@@ -14,7 +14,8 @@ namespace POS_CW.Data.Models
         public String Username { get; set; }
         public String PhoneNumber { get; set; }
 
-        public int Discount { get; set; }
+        public double Discount { get; set; }
+
 
 
     }

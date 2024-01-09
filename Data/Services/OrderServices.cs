@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿
+using Newtonsoft.Json;
 using POS_CW.Data.models;
 using POS_CW.Data.Utils;
 using System;
