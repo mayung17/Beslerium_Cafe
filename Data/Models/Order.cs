@@ -16,6 +16,7 @@ namespace POS_CW.Data.models
 
         // This property represents a list of hobbies associated with the form.
         public List<Add_In> Addin { get; set; }
+        public bool IsPaid { get; set; } = false;
         public float TotalPrice { get; set;}
   
     }

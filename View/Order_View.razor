@@ -59,7 +59,9 @@
                 </td>
                 <td>@orderData.TotalPrice</td>
                 <td>
+                    @if(orderData.IsPaid==false){
                     <button type="submit"  @onclick="@(()=>CreatePayment(orderData.Id))"  class="btn btn-primary">Payment</button>
+                    }
                 </td>
             </tr>
         }

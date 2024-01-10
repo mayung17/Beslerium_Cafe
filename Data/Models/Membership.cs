@@ -12,6 +12,7 @@ namespace POS_CW.Data.Models
         {
             Regular,
             Member,
+            New,
         }
 
     
