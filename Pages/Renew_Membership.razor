@@ -1,0 +1,59 @@
+﻿@page "/renew";
+@using POS_CW.Data.Models;
+@using POS_CW.Data.Services;
+
+<EditForm Model="@customer" OnValidSubmit="@HandleSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="form-group">
+        <label for="Username">Username:</label>\
+        <InputText id="Username" class="form-control" @bind-Value="customer.Username" />
+     </div>
+     <div class="form-group">
+        <label for="PhoneNumber">PhoneNumber:</label>\
+        <InputText id="PhoneNumber" class="form-control" @bind-Value="customer.PhoneNumber" />
+     </div>
+    <!-- Submit button for saving changes -->
+    <button type="submit"  class="btn btn-primary">Save</button>
+</EditForm>
+
+
+@code {
+
+    public Customer customer;
+
+
+    private CustomerServices customerServices = new CustomerServices();
+
+    // Initialization method runs when the component i.e. CreatePayment.razor is initialized
+    protected override void OnInitialized()
+    {
+        customer = new Customer();
+
+        base.OnInitialized();
+    }
+
+    //HandleSubmit method is called on form submission
+    public void HandleSubmit()
+    {
+        Customer user = customerServices.getCustomerInstance(customer.Username, customer.PhoneNumber);
+        try
+        {
+            if (user.IsMembershipActive == false)
+            {
+                customerServices.RenewMembership(user.Username, user.PhoneNumber);
+
+                App.Current.MainPage.DisplayAlert("Success", "User Successfully Renewed", "Ok");
+            }
+            else
+            {
+                App.Current.MainPage.DisplayAlert("Message", $"Membership is active expiry date:{user.MembershipRenewalMonth.ToString("yyyy/MM/dd")}", "Ok");
+            }
+        }
+        catch (Exception ex)
+        {
+            // Display an error alert if an exception occurs during payment creation
+            App.Current.MainPage.DisplayAlert("Error", $"Error Renewing: {ex.Message}", "Ok");
+        }
+    }
+    }

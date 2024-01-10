@@ -49,21 +49,48 @@
     // HandleSubmit method is called on form submission
     public void HandleSubmit()
     {
-        Customer user = customerServices.IsApplicableForSchemes(payment.Username, payment.PhoneNumber);
+        Customer user = customerServices.getCustomerInstance(payment.Username, payment.PhoneNumber);
+        order.IsPaid = true;
+
         try
         {
-            customerServices.RenewMembership(user.Username, user.PhoneNumber);
-            customerServices.ApplyFlatDiscount(user.Username,user.PhoneNumber);
-            payment = PaymentService.CreatePayment(order, payment.Username, payment.PhoneNumber,payment.Discount=user.Discount );
-            customerServices.IncrementPurchaseCount(user.Username, user.PhoneNumber);
-            customerServices.IncrementRedemptionCount(user.Username, user.PhoneNumber);
+            if (user == null)
+            {
+                // Create a new customer if not found
+                user = customerServices.createNewCustomer(payment.Username, payment.PhoneNumber);
+                customerServices.RenewMembership(user.Username, user.PhoneNumber);
+                customerServices.ApplyFlatDiscount(user.Username, user.PhoneNumber);
 
-            App.Current.MainPage.DisplayAlert("Success", "Data SuccessFully Edited", "Ok");
+                // Create payment with the discount from the user
+                payment = PaymentService.CreatePayment(order, payment.Username, payment.PhoneNumber, payment.Discount = user.Discount);
+
+                customerServices.IncrementPurchaseCount(user.Username, user.PhoneNumber);
+                customerServices.IncrementRedemptionCount(user.Username, user.PhoneNumber);
+               
+                App.Current.MainPage.DisplayAlert("Success", "Data Successfully Edited", "Ok");
+            }
+
+            // Ensure that user is not null before calling other methods
+            else
+            {
+                customerServices.RenewMembership(user.Username, user.PhoneNumber);
+                customerServices.ApplyFlatDiscount(user.Username, user.PhoneNumber);
+
+                // Create payment with the discount from the user
+                payment = PaymentService.CreatePayment(order, payment.Username, payment.PhoneNumber, payment.Discount = user.Discount);
+
+                customerServices.IncrementPurchaseCount(user.Username, user.PhoneNumber);
+                customerServices.IncrementRedemptionCount(user.Username, user.PhoneNumber);
+             
+                App.Current.MainPage.DisplayAlert("Success", "Data Successfully Edited", "Ok");
+            }
+           
+
         }
         catch (Exception ex)
         {
-            // Display an error alert if an exception occurs during payment creation
-            App.Current.MainPage.DisplayAlert("Error", $"Error Creating Payment: {ex.Message}", "Ok");
+            App.Current.MainPage.DisplayAlert("Error", $"Error Editing Data: {ex.Message}", "Ok");
         }
     }
+
 }

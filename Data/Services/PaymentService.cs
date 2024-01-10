@@ -50,21 +50,39 @@ namespace POS_CW.Data.Services
         private static readonly object FileLock = new object();
         public static Payments CreatePayment(Order orders, string Usernames, string Phonenumber, double Discount)
         {
-
-            // Retrieve the list of hobbies.
-            Payments payment = new Payments
+            try
             {
-                Id = Guid.NewGuid(), // Generate a new unique identifier for the payment
-                order = orders,   // Assign the provided orderId
-                Username = Usernames,
-                PhoneNumber = Phonenumber,
-                Discount = Discount
+                
+                Order_Services.EditOrders(orders.Id,orders.IsPaid);
+                // Retrieve the list of hobbies.
+                Payments payment = new Payments
+                {
+                    Id = Guid.NewGuid(), // Generate a new unique identifier for the payment
+                    order = orders,      // Assign the provided orderId
+                    Username = Usernames,
+                    PhoneNumber = Phonenumber,
+                    Discount = Discount,
+                    PayDate = DateTime.Today,
 
-                // Other properties or logic related to payment creation
-            };
-            SavePaymentToJson(payment);
-            return payment;  
+                    // Other properties or logic related to payment creation
+                };
+
+                // Save the payment data to a JSON file
+                SavePaymentToJson(payment);
+
+                // Return the created payment
+                return payment;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error Saving JSON file: {ex.Message}");
+                App.Current.MainPage.DisplayAlert("Error", "Error Storing the payment data", "OK");
+
+                // If an exception occurs, return null or handle the error accordingly
+                return null;
+            }
         }
+
         public static List<Payments> RetrievePaymentData()
         {
             // Gets the file path where form data is stored from ApplicationFilePath method

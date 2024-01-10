@@ -15,6 +15,11 @@ namespace POS_CW.Data.Models
         public String PhoneNumber { get; set; }
 
         public double Discount { get; set; }
+        public DateTime PayDate { get; set; }
+
+      
+
+        
 
 
 

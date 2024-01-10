@@ -86,6 +86,36 @@ namespace POS_CW.Data.Services
             // Return the first Add_In with the specified Id.
             return order.FirstOrDefault(x => x.Id == id); //creating arrow function and checking whether the Id of Hobbies is equal to the id of parameter that recieves value later on.
         }
+        public static List<Order> EditOrders(Guid id, bool isPaid)
+        {
+            // Retrieve the list of hobbies.
+            List<Order> order = RetrieveOrderedData();
+            // Find the Add_In with the specified Id.
+            Order editOrder = order.FirstOrDefault(x => x.Id == id);
+            // If the Add_In is not found, throw an exception.
+            if (editOrder == null)
+            {
+                throw new Exception("Order not found");
+            }
+            // Update the name of the Add_In.
+            editOrder.IsPaid = isPaid;
+            SaveOrder(order); // Save the updated list of hobbies to the JSON file by calling method SaveHobbiesToJson
+            return order;  // Return the updated list of hobbies.
+        }
+        public static void SaveOrder(List<Order> orders)
+        {
+            // Gets the file path where form data will be stored from ApplicationFilePath method
+            // in Utility class in Utils Folder and stores it in the variable filePath.
+            string filePath = Utility.OrderFilePath();
+
+            // Serialize the list of hobbies to JSON format with formatting Indented and store it in Variable jsonData
+            string jsonData = JsonConvert.SerializeObject(orders, Formatting.Indented);
+
+            // Write the JSON data to the file given from filePath variable and data from jsonData variable.
+            File.WriteAllText(filePath, jsonData);
+        }
+
+
 
     }
 }

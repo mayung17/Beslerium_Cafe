@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Windows.System;
 
 
+
 namespace POS_CW.Data.Services
 {
     public class CustomerServices
@@ -18,10 +19,17 @@ namespace POS_CW.Data.Services
         new Customer { Username = "bishal", PhoneNumber = "9862884245", MemberType = MemberType.Member},
     };
 
-        public Customer IsApplicableForSchemes(string Username, string Phonenumber)
+        public Customer getCustomerInstance(string Username, string Phonenumber)
         {
             return _customers.FirstOrDefault(u => u.Username == Username && u.PhoneNumber == Phonenumber);
         }
+        public Customer createNewCustomer(string Username, string Phonenumber)
+        {
+           Customer newCustomer=new Customer { Username = Username, PhoneNumber = Phonenumber, MemberType = MemberType.New };
+            _customers.Add(newCustomer);
+            return newCustomer;
+        }
+
 
         public void IncrementPurchaseCount(string Username, string Phonenumber)
         {
@@ -54,25 +62,26 @@ namespace POS_CW.Data.Services
         {
             var user = _customers.FirstOrDefault(u => u.Username == Username && u.PhoneNumber == Phonenumber);
             if (user != null)
-            {
-                if (DateTime.Now != user.MembershipRenewalMonth)
+            {           
+              if (user.MemberType == MemberType.Member || user.MemberType == MemberType.Regular)
                 {
-                    user.Discount = 0.10;
+                    if (DateTime.Now != user.MembershipRenewalMonth)
+                    {
+                        user.Discount = 0.10;
+                    }
+                    else
+                    {
+                        user.Discount = 0.00;
+                        App.Current.MainPage.DisplayAlert("Note", $" please nenew to get your discount", "Ok");
+                    }
                 }
-                
+                else
+                {
+                    user.Discount = 0.00;
+                }
             }
         }
-        public void Valid(string Username, string Phonenumber)
-        {
-            var user = _customers.FirstOrDefault(u => u.Username == Username && u.PhoneNumber == Phonenumber);
-            if (user != null)
-            {
-                if (user.MemberType == MemberType.Member)
-                {
-                    user.PurchaseCount++;
-                }
-            }
-        }
+        
         public void RenewMembership(string Username, string Phonenumber)
         {
             var user = _customers.FirstOrDefault(u => u.Username == Username && u.PhoneNumber == Phonenumber);

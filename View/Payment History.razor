@@ -4,8 +4,10 @@
 <!---- Giving reference to the Package IronPdf to use its method and download functionality-->
 @using IronPdf
 
+@using POS_CW.Data.Models;
 @using POS_CW.Data.Services;
 @using POS_CW.Data.Utils;
+@using POS_CW.Data.models;
 @inject NavigationManager NavManager
 
 <h3>ViewFormData</h3>
@@ -54,71 +56,85 @@
     {
         try
         {
-            var OrderList = Order_Services.RetrieveOrderedData();
-
-            if (OrderList != null && OrderList.Any())
+            var PaymentList = PaymentService.RetrievePaymentData();
+            if (PaymentList != null && PaymentList.Any())
             {
+                // Calculate total revenue
+                DateTime targetDate = DateTime.Today;
+                double totalDiscountedPayments = PaymentList
+             .Where(payment => payment.PayDate == targetDate)
+             .Sum(payment => payment.order.TotalPrice - (payment.order.TotalPrice * payment.Discount));
+
+
+
+                // Calculate top 5 most sold coffee and add-ins
+                var topCoffee = PaymentList
+                    .SelectMany<Payments, Coffee>(payment => Enumerable.Repeat(payment.order.Coffee, 1))
+                    .GroupBy(coffee => coffee.Coffee_Name)
+                    .Select(group => new
+                    {
+                        CoffeeName = group.Key,
+                        Count = group.Count(),
+                    })
+                     .OrderByDescending(result => result.Count)
+
+                    .Take(5);
+
+
+                var topAddIns = PaymentList
+                    .SelectMany<Payments, Add_In>(payment => payment.order.Addin)
+                    .GroupBy(addin => addin.AddIn_Name)
+                    .Select(group => new
+                    {
+                        AddIn_Name = group.Key,
+                        Count = group.Count(),
+                    })
+                    .Take(5);
+
+
                 // Create a PDF document
                 var pdf = new ChromePdfRenderer();
 
                 // HTML table for PDF
-                var tableHtml = "<table><thead><tr><th>First Name</th><th>Last Name</th><th>Email</th><th>Phone Number</th><th>Address</th><th>Hobbies</th></tr></thead><tbody>";
+                var tableHtml = "<h1>REPORT</h1>";
 
                 // Add data to the table
-                // Loop through form data to add to the PDF table
-                foreach (var OrderData in OrderList)
+                // Loop through form data to add to the PDF tabl
+
+
+                tableHtml += $"<h2>Total Revenue Of the Day {DateTime.Today}</h2>";
+
+                // Add total revenue to the table
+                tableHtml += $"<p>Total Revenue: {totalDiscountedPayments}</p>";
+
+                // Add top 5 most sold coffee to the table
+                tableHtml += "<h3>Top 5 Most Sold Coffee:</h3>";
+                tableHtml += "<ul>";
+                foreach (var coffee in topCoffee)
                 {
-                    tableHtml += "<tr>";
-                    tableHtml += $"<td></td><td>{OrderData.Coffee}</td><td>{OrderData.Addin}<</td><td>{OrderData.TotalPrice}</td>";
-                    tableHtml += "<td>";
-
-                    // Check if hobbies exist for the current form data
-                    if (OrderData.Coffee != null)
-                    {
-                        tableHtml += "<ul>";
-                        // Loop through hobbies and add to the PDF table
-
-                        tableHtml += $"<li>{OrderData.Coffee.Coffee_Name}</li>";
-                        tableHtml += $"<li>{OrderData.Coffee.Coffee_Name}</li>";
-                        tableHtml += "</ul>";
-                    }
-                    else
-                    {
-                        // Display a message if no hobbies
-                        tableHtml += "<span>No hobbies</span>";
-                    }
-                    if (OrderData.Addin != null && OrderData.Addin.Any())
-                    {
-                        tableHtml += "<ul>";
-                        // Loop through hobbies and add to the PDF table
-                        foreach (var addinss in OrderData.Addin)
-                        {
-                            tableHtml += $"<li>{addinss.AddIn_Name}</li>";
-                            tableHtml += $"<li>{addinss.AddIn_Price}</li>";
-                        }
-                        tableHtml += "</ul>";
-                    }
-                    else
-                    {
-                        // Display a message if no hobbies
-                        tableHtml += "<span>No hobbies</span>";
-                    }
-
-                    tableHtml += "</td></tr>";
+                    tableHtml += $"<li>{coffee.CoffeeName} - Quantity: {coffee.Count}</li>";
                 }
+                tableHtml += "</ul>";
 
-                tableHtml += "</tbody></table>";
+                // Add top 5 most sold add-ins to the table
+                tableHtml += "<h3>Top 5 Most Sold Add-ins:</h3>";
+                tableHtml += "<ul>";
+                foreach (var addin in topAddIns)
+                {
+                    tableHtml += $"<li>{addin.AddIn_Name} - Quantity: {addin.Count}</li>";
+                }
+                tableHtml += "</ul>";
 
-                //Convert HTML to Pdf
+                // Convert HTML to Pdf
                 var pdfStream = pdf.RenderHtmlAsPdf(tableHtml).Stream;
 
                 // Save the PDF Inside the folder
-                string pdfPath = Utility.OrderDirectoryPath();
+                string pdfPath = Utility.PaymentDirectoryPath();
 
-                //Combining file FormData.pdf with directory and also creating the pdf file at the same time using FileMode inbuilt class of .net and its method and finally storing it in variable fileStream
-                using (var fileStream = new System.IO.FileStream(Path.Combine(pdfPath, "OrderHistory.pdf"), System.IO.FileMode.Create))
+                // Combining file FormData.pdf with directory and also creating the pdf file at the same time using FileMode inbuilt class of .net and its method and finally storing it in variable fileStream
+                using (var fileStream = new System.IO.FileStream(Path.Combine(pdfPath, "Report.pdf"), System.IO.FileMode.Create))
                 {
-                    pdfStream.CopyToAsync(fileStream); //copying the data of pdf inside application to the pdf created in you device
+                    pdfStream.CopyToAsync(fileStream); // copying the data of pdf inside application to the pdf created in your device
                 }
 
                 // Show notification
@@ -130,6 +146,7 @@
             Console.WriteLine(ex);
         }
     }
+
 
     public static void DeleteFile()
     {
