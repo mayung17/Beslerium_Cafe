@@ -2,11 +2,19 @@
 @using POS_CW.Data.Models;
 @using POS_CW.Data.Services;
 @inject NavigationManager NavManager
-<h3>Login</h3>
+<div class="login-container">
+    <h3>Login</h3>
+    <div class="form-group">
+        <label for="email">Email</label>
+        <input id="email" @bind="email" placeholder="Email">
+    </div>
+    <div class="form-group">
+        <label for="password">Password</label>
+        <input id="password" @bind="password" placeholder="Password" type="password">
+    </div>
+    <button @onclick="Login">Login</button>
+</div>
 
-<InputText @bind-Value="email" placeholder="Email" />
-<InputText @bind-Value="password" placeholder="Password" type="password" />
-<button @onclick="Login">Login</button>
 @if (!string.IsNullOrEmpty(loginMessage))
 {
     <div class="login-message">

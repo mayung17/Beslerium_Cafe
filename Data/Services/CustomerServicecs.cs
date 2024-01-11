@@ -1,11 +1,13 @@
-﻿using POS_CW.Data.models;
+﻿using Newtonsoft.Json;
+using POS_CW.Data.models;
 using POS_CW.Data.Models;
+using POS_CW.Data.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Windows.System;
+
 
 
 
@@ -36,10 +38,8 @@ namespace POS_CW.Data.Services
             var user = _customers.FirstOrDefault(u => u.Username == Username && u.PhoneNumber == Phonenumber);
             if (user != null)
             {
-                if (user.MemberType == MemberType.Member)
-                {
+                
                     user.PurchaseCount++;
-                }
             }
         }
 
@@ -96,12 +96,27 @@ namespace POS_CW.Data.Services
                 }
             }
         }
-   
+
+       
+           public static void saveCustomerInJson(List<Customer> customer)
+            {
+                // Gets the file path where form data will be stored from ApplicationFilePath method
+                // in Utility class in Utils Folder and stores it in the variable filePath.
+                string filePath = Utility.CustomerFilePath();
+
+                // Serialize the list of hobbies to JSON format with formatting Indented and store it in Variable jsonData
+                string jsonData = JsonConvert.SerializeObject(customer, Newtonsoft.Json.Formatting.Indented);
+
+                // Write the JSON data to the file given from filePath variable and data from jsonData variable.
+                File.WriteAllText(filePath, jsonData);
+            }
 
 
-        // Add a method for membership renewal if needed
 
-        // Add other methods as required
+
+            // Add a method for membership renewal if needed
+
+            // Add other methods as required
+        }
+
     }
-
-}

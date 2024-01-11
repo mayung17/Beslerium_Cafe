@@ -8,5 +8,7 @@
 
             MainPage = new MainPage();
         }
+
+
     }
 }

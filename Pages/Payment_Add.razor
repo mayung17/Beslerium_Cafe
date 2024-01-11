@@ -12,16 +12,19 @@
 <EditForm Model="@payment" OnValidSubmit="@HandleSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
-    <div class="form-group">
-        <label for="Username">Username:</label>\
-        <InputText id="Username" class="form-control" @bind-Value="payment.Username" />
-     </div>
-     <div class="form-group">
-        <label for="PhoneNumber">PhoneNumber:</label>\
-        <InputText id="PhoneNumber" class="form-control" @bind-Value="payment.PhoneNumber" />
-     </div>
+
+    <div class="custom-form-group">
+        <label for="Username">Username:</label>
+        <InputText id="Username" class="custom-form-control" @bind-Value="payment.Username" />
+    </div>
+
+    <div class="custom-form-group">
+        <label for="PhoneNumber">PhoneNumber:</label>
+        <InputText id="PhoneNumber" class="custom-form-control" @bind-Value="payment.PhoneNumber" />
+    </div>
+
     <!-- Submit button for saving changes -->
-    <button type="submit"  class="btn btn-primary">Save</button>
+    <button type="submit" class="custom-btn custom-btn-primary">Save</button>
 </EditForm>
 
 @code {
@@ -65,12 +68,12 @@
                 payment = PaymentService.CreatePayment(order, payment.Username, payment.PhoneNumber, payment.Discount = user.Discount);
 
                 customerServices.IncrementPurchaseCount(user.Username, user.PhoneNumber);
-                customerServices.IncrementRedemptionCount(user.Username, user.PhoneNumber);
-               
-                App.Current.MainPage.DisplayAlert("Success", "Data Successfully Edited", "Ok");
+              
+
+                App.Current.MainPage.DisplayAlert("Success", $"Payment Successful reedeem:{user.RedemptionCount}", "Ok");
             }
 
-            // Ensure that user is not null before calling other methods
+          
             else
             {
                 customerServices.RenewMembership(user.Username, user.PhoneNumber);
@@ -82,7 +85,7 @@
                 customerServices.IncrementPurchaseCount(user.Username, user.PhoneNumber);
                 customerServices.IncrementRedemptionCount(user.Username, user.PhoneNumber);
              
-                App.Current.MainPage.DisplayAlert("Success", "Data Successfully Edited", "Ok");
+                App.Current.MainPage.DisplayAlert("Success", $"Payment Successful reedeem:{user.RedemptionCount}", "Ok");
             }
            
 
