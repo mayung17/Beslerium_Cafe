@@ -11,7 +11,7 @@ namespace POS_CW.Data.Services
 {
     public class Coffees_Services
     {
-        public static void SaveAdd_InToJson(List<Coffee> coffees)
+        public static void SaveCoffeeToJson(List<Coffee> coffees)
         {
             // Gets the file path where form data will be stored from ApplicationFilePath method
             // in Utility class in Utils Folder and stores it in the variable filePath.
@@ -48,7 +48,7 @@ namespace POS_CW.Data.Services
                 new Coffee { Coffee_Name = "Dopio", Coffee_Price = 50},
                  new Coffee { Coffee_Name = "Espresso", Coffee_Price = 50 }
             };
-                SaveAdd_InToJson(sampleCoffee); // Save the sample Add_In data to the JSON file by calling SaveHobbiesToJson Method and passing sampleHobbies as it Argument.
+                SaveCoffeeToJson(sampleCoffee); // Save the sample Add_In data to the JSON file by calling SaveHobbiesToJson Method and passing sampleHobbies as it Argument.
             }
         }
 
@@ -102,7 +102,7 @@ namespace POS_CW.Data.Services
             // Update the name of the Add_In.
             EditCoffee.Coffee_Name = newName;
             EditCoffee.Coffee_Price = newPrice;
-            SaveAdd_InToJson(coffee); // Save the updated list of hobbies to the JSON file by calling method SaveHobbiesToJson
+            SaveCoffeeToJson(coffee); // Save the updated list of hobbies to the JSON file by calling method SaveHobbiesToJson
             return coffee;  // Return the updated list of hobbies.
         }
     }
